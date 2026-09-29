@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misi Detektif Siber: Game Literasi Digital SMP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        :root {
+            --font-game: 'Fredoka', cursive, sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
+            min-height: 100vh;
+            color: #f8fafc;
+        }
+
+        .font-game {
+            font-family: var(--font-game);
+        }
+
+        /* Glassmorphism Card */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.125);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Animated Buttons */
+        .btn-arcade {
+            transition: all 0.15s ease;
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-arcade:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-option {
+            background: rgba(51, 65, 85, 0.6);
+            border: 2px solid rgba(148, 163, 184, 0.2);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-option:hover:not(:disabled) {
+            background: rgba(79, 70, 229, 0.3);
+            border-color: #818cf8;
+            transform: translateX(6px);
+        }
+
+        .btn-option.correct {
+            background: rgba(16, 185, 129, 0.25) !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+        }
+
+        .btn-option.incorrect {
+            background: rgba(239, 68, 68, 0.25) !important;
+            border-color: #ef4444 !important;
+            color: #fca5a5 !important;
+        }
+
+        /* Heart Pulse Animation */
+        @keyframes heartPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.25); }
+            100% { transform: scale(1); }
+        }
+
+        .heart-active {
+            animation: heartPulse 1.2s infinite ease-in-out;
+            color: #ef4444;
+        }
+
+        /* Badge Glow Effect */
+        .badge-glow {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 8px;
+        }
+
+        /* Styling khusus Cetak / Simpan PDF */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #0f172a !important;
+                padding: 0 !important;
+            }
+            .glass-panel {
+                background: #ffffff !important;
+                border: 2px solid #0f172a !important;
+                box-shadow: none !important;
+                color: #0f172a !important;
+                max-width: 100% !important;
+                backdrop-filter: none !important;
+            }
+            .no-print, #sound-toggle-btn {
+                display: none !important;
+            }
+            .text-slate-100, .text-slate-200, .text-slate-300, .text-slate-400, .text-indigo-300 {
+                color: #1e293b !important;
+            }
+            .bg-slate-800\/80, .bg-slate-800\/50, .bg-slate-900\/60, .bg-slate-800 {
+                background-color: #f1f5f9 !important;
+                border-color: #cbd5e1 !important;
+            }
+            .text-transparent {
+                -webkit-text-fill-color: #0f172a !important;
+                color: #0f172a !important;
+            }
+            .max-h-56 {
+                max-height: none !important;
+                overflow: visible !important;
+            }
+            .badge-glow {
+                box-shadow: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="p-3 sm:p-6 flex items-center justify-center relative overflow-x-hidden">
+
+    <div class="w-full max-w-3xl glass-panel rounded-3xl p-5 sm:p-8 relative z-10 my-auto border border-slate-700/50">
+        
+        <!-- AUDIO SOUND CONTROLLER TOGGLE -->
+        <div class="absolute top-4 right-4 z-20">
+            <button id="sound-toggle-btn" onclick="toggleSound()" class="w-10 h-10 rounded-full bg-slate-800/80 border border-slate-600 flex items-center justify-center text-slate-300 hover:text-white hover:bg-indigo-600 transition">
+                <i id="sound-icon" class="fas fa-volume-up"></i>
+            </button>
+        </div>
+
+        <!-- ==================== SCREEN 1: START GAME ==================== -->
+        <div id="screen-start" class="text-center space-y-6">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs sm:text-sm font-semibold uppercase tracking-wider">
+                <i class="fas fa-shield-halved text-amber-400"></i> Game Literasi Digital & AI SMP
+            </div>
+
+            <div>
+                <h1 class="text-3xl sm:text-5xl font-extrabold font-game text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-indigo-300 to-cyan-300 drop-shadow mb-2">
+                    MISI DETEKTIF SIBER
+                </h1>
+                <p class="text-slate-300 text-sm sm:text-base max-w-lg mx-auto">
+                    Kota Digital diserang wabah hoaks dan penipuan! Gunakan nalar kritismu untuk memverifikasi informasi dan selamatkan warganet.
+                </p>
+            </div>
+
+            <!-- Avatar Selection -->
+            <div class="bg-slate-800/60 p-4 rounded-2xl border border-slate-700 text-left">
+                <label class="block text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2">Pilih Avatar Detektifmu:</label>
+                <div class="grid grid-cols-4 gap-3 mb-4">
+                    <button type="button" onclick="selectAvatar('🕵️‍♂️', this)" class="avatar-option p-3 rounded-xl bg-slate-700/50 border-2 border-indigo-500 text-3xl sm:text-4xl text-center hover:bg-indigo-900/40 transition">🕵️‍♂️</button>
+                    <button type="button" onclick="selectAvatar('🕵️‍♀️', this)" class="avatar-option p-3 rounded-xl bg-slate-700/50 border-2 border-transparent text-3xl sm:text-4xl text-center hover:bg-indigo-900/40 transition">🕵️‍♀️</button>
+                    <button type="button" onclick="selectAvatar('🤖', this)" class="avatar-option p-3 rounded-xl bg-slate-700/50 border-2 border-transparent text-3xl sm:text-4xl text-center hover:bg-indigo-900/40 transition">🤖</button>
+                    <button type="button" onclick="selectAvatar('🦊', this)" class="avatar-option p-3 rounded-xl bg-slate-700/50 border-2 border-transparent text-3xl sm:text-4xl text-center hover:bg-indigo-900/40 transition">🦊</button>
+                </div>
+
+                <label for="player-name" class="block text-xs font-bold text-indigo-300 uppercase tracking-wider mb-1">Nama Agen Detektif:</label>
+                <input type="text" id="player-name" placeholder="Masukkan nama/panggilanmu..." class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-semibold">
+            </div>
+
+            <!-- Game Rules Overview -->
+            <div class="grid grid-cols-3 gap-2 text-center text-xs text-slate-300">
+                <div class="bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/60">
+                    <i class="fas fa-heart text-red-500 text-lg mb-1 block"></i>
+                    <span>3 Nyawa Kesempatan</span>
+                </div>
+                <div class="bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/60">
+                    <i class="fas fa-stopwatch text-amber-400 text-lg mb-1 block"></i>
+                    <span>30 Detik / Soal</span>
+                </div>
+                <div class="bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/60">
+                    <i class="fas fa-bolt text-cyan-400 text-lg mb-1 block"></i>
+                    <span>Combo Skor Multiplier</span>
+                </div>
+            </div>
+
+            <button onclick="startGame()" class="w-full py-4 bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-game text-xl rounded-2xl btn-arcade shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-3">
+                <i class="fas fa-play text-amber-300"></i> MULAI MISI DETEKTIF
+            </button>
+        </div>
+
+        <!-- ==================== SCREEN 2: GAMEPLAY ==================== -->
+        <div id="screen-game" class="hidden space-y-5">
+            <!-- HUD (Heads-Up Display) Header -->
+            <div class="flex items-center justify-between bg-slate-900/80 p-3 sm:p-4 rounded-2xl border border-slate-700">
+                <!-- Player Info -->
+                <div class="flex items-center gap-2">
+                    <span id="hud-avatar" class="text-2xl sm:text-3xl">🕵️‍♂️</span>
+                    <div>
+                        <div id="hud-name" class="font-bold text-xs sm:text-sm text-slate-200">Agen</div>
+                        <div class="text-[10px] text-indigo-400 uppercase tracking-widest font-bold">Detektif Level 1</div>
+                    </div>
+                </div>
+
+                <!-- Lives Counter -->
+                <div class="flex items-center gap-1 bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-700">
+                    <span id="heart-1" class="heart-active"><i class="fas fa-heart text-base sm:text-lg"></i></span>
+                    <span id="heart-2" class="heart-active"><i class="fas fa-heart text-base sm:text-lg"></i></span>
+                    <span id="heart-3" class="heart-active"><i class="fas fa-heart text-base sm:text-lg"></i></span>
+                </div>
+
+                <!-- Score Counter & Combo -->
+                <div class="text-right">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Skor Misi</div>
+                    <div class="flex items-center gap-1.5 justify-end">
+                        <span id="combo-badge" class="hidden text-[10px] bg-amber-500/20 text-amber-300 font-extrabold px-1.5 py-0.5 rounded border border-amber-500/40 animate-pulse">2x COMBO</span>
+                        <span id="hud-score" class="font-game text-xl sm:text-2xl text-amber-400 font-bold">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Level & Question Indicator Bar -->
+            <div>
+                <div class="flex justify-between items-center text-xs font-semibold text-slate-400 mb-1.5">
+                    <span id="question-level-badge" class="text-indigo-300 font-bold">Kasus #1 dari 10</span>
+                    <span id="timer-text" class="text-amber-400 font-mono font-bold"><i class="fas fa-clock mr-1"></i> 30s</span>
+                </div>
+                
+                <!-- Timer Progress Bar -->
+                <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700/80">
+                    <div id="timer-bar" class="bg-gradient-to-r from-amber-500 to-indigo-500 h-2.5 rounded-full transition-all duration-1000 ease-linear w-full"></div>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-slate-800/80 p-4 sm:p-6 rounded-2xl border border-slate-700">
+                <div id="question-category" class="inline-block px-3 py-1 bg-indigo-900/60 border border-indigo-500/30 text-indigo-300 rounded-lg text-xs font-bold mb-3">
+                    Kategori: Verifikasi Informasi
+                </div>
+                <h2 id="question-text" class="text-base sm:text-lg font-bold text-slate-100 leading-relaxed mb-4">
+                    Memuat pertanyaan...
+                </h2>
+
+                <!-- Options Grid -->
+                <div id="options-container" class="space-y-3">
+                    <!-- Option Buttons Injected via JS -->
+                </div>
+            </div>
+
+            <!-- Feedback Modal / Panel -->
+            <div id="feedback-panel" class="hidden p-4 rounded-2xl text-sm border space-y-2 animate-fade-in">
+                <div id="feedback-header" class="font-bold font-game text-base flex items-center gap-2"></div>
+                <div id="feedback-text" class="text-slate-200 text-xs sm:text-sm leading-relaxed"></div>
+            </div>
+
+            <!-- Action Button -->
+            <button id="next-btn" onclick="nextQuestion()" disabled class="w-full py-3.5 bg-slate-700 text-slate-400 font-bold rounded-xl transition flex items-center justify-center gap-2">
+                <span>Kasus Selanjutnya</span> <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+
+        <!-- ==================== SCREEN 3: GAME OVER / VICTORY ==================== -->
+        <div id="screen-result" class="hidden text-center space-y-6">
+            <div id="result-icon-container" class="w-24 h-24 mx-auto rounded-full bg-indigo-500/20 border-2 border-indigo-400 flex items-center justify-center text-5xl">
+                🏆
+            </div>
+
+            <div>
+                <span id="result-badge" class="px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-extrabold uppercase tracking-widest">
+                    MISI SELESAI
+                </span>
+                <h2 id="result-title" class="text-3xl sm:text-4xl font-extrabold font-game text-white mt-2">
+                    Laporan Hasil Misi
+                </h2>
+                <p id="result-subtitle" class="text-slate-300 text-sm mt-1">
+                    Agen Budi berhasil menyelesaikan evaluasi siber!
+                </p>
+            </div>
+
+            <!-- Score & Stats Cards -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Total Skor</div>
+                    <div id="final-score" class="font-game text-2xl sm:text-3xl text-amber-400 font-bold">0</div>
+                </div>
+                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Akurasi</div>
+                    <div id="final-accuracy" class="font-game text-2xl sm:text-3xl text-emerald-400 font-bold">0%</div>
+                </div>
+                <div class="bg-slate-800/80 p-3 rounded-2xl border border-slate-700">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold">Combo Max</div>
+                    <div id="final-combo" class="font-game text-2xl sm:text-3xl text-cyan-400 font-bold">0x</div>
+                </div>
+            </div>
+
+            <!-- Badges Unlocked Section -->
+            <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/80 text-left">
+                <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <i class="fas fa-medal text-amber-400"></i> Lencana Diterima:
+                </h4>
+                <div id="badges-container" class="flex flex-wrap gap-2">
+                    <!-- Badges injected via JS -->
+                </div>
+            </div>
+
+            <!-- Review / Pembahasan Section -->
+            <div class="bg-slate-800/50 p-4 rounded-2xl border border-slate-700/80 text-left max-h-56 overflow-y-auto space-y-3">
+                <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider sticky top-0 bg-slate-800 py-1">
+                    📋 Catatan Evaluasi Kasus:
+                </h4>
+                <div id="review-container" class="space-y-2 text-xs">
+                    <!-- Review items injected via JS -->
+                </div>
+            </div>
+
+            <!-- Action Buttons Container -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 no-print">
+                <button onclick="printResult()" class="w-full py-3.5 sm:py-4 bg-emerald-700 hover:bg-emerald-600 text-white font-game text-base sm:text-lg rounded-2xl btn-arcade border border-emerald-500/50 flex items-center justify-center gap-2">
+                    <i class="fas fa-file-pdf text-amber-300"></i> CETAK / SIMPAN PDF
+                </button>
+                <button onclick="resetGame()" class="w-full py-3.5 sm:py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-game text-base sm:text-lg rounded-2xl btn-arcade shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2">
+                    <i class="fas fa-rotate-right"></i> MAIN LAGI
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        /* ==================== GAME QUESTIONS DATA ==================== */
+        const questions = [
+            {
+                category: "1. Konsep Literasi Digital",
+                question: "Apa pengertian mendasar dari 'Literasi Digital' bagi seorang murid SMP di era teknologi saat ini?",
+                options: [
+                    "Keahlian bermain game online tanpa henti sepanjang hari.",
+                    "Kemampuan mengakses, menganalisis, mengevaluasi, dan menyampaikan informasi secara kritis dan etis.",
+                    "Keahlian merakit komponen fisik komputer dan laptop.",
+                    "Keahlian menghafal seluruh alamat situs berita populer di Indonesia."
+                ],
+                correct: 1,
+                explanation: "Literasi digital bukan sekadar bisa mengoperasikan gadget, melainkan kemampuan berpikir kritis dalam memilah dan memanfaatkan informasi secara etis."
+            },
+            {
+                category: "2. Jenis Informasi Digital",
+                question: "Di internet, terdapat berbagai jenis informasi. Pernyataan: 'Suhu udara rata-rata di Kota Bandung hari ini adalah 24°C berdasarkan data BMKG' termasuk jenis...",
+                options: [
+                    "Opini subjektif netizen",
+                    "Fakta terverifikasi",
+                    "Gosip atau rumor",
+                    "Promosi produk tersembunyi"
+                ],
+                correct: 1,
+                explanation: "Informasi tersebut adalah FAKTA terverifikasi karena terukur dan berasal dari lembaga publik resmi (BMKG)."
+            },
+            {
+                category: "3. Deteksi Ciri-Ciri Hoaks",
+                question: "Manakah ciri visual atau gaya bahasa yang paling sering ditemukan pada berita atau pesan bohong (hoaks)?",
+                options: [
+                    "Mencantumkan nama penulis serta referensi data yang jelas.",
+                    "Menggunakan judul yang netral dan obyektif.",
+                    "Menggunakan judul provokatif, emosional, dan mendesak untuk disebarkan secara berantai.",
+                    "Diterbitkan oleh domain situs pemerintah (.go.id)."
+                ],
+                correct: 2,
+                explanation: "Hoaks memanfaatkan judul bombastis/sensasional untuk memicu kepanikan atau amarah agar pembaca membagikannya tanpa berpikir."
+            },
+            {
+                category: "4. Strategi Pencarian Informasi",
+                question: "Budi ingin mencari dokumen penelitian resmi berformat PDF tentang 'Dampak AI pada Siswa SMP'. Trik kata kunci Google yang paling efektif adalah...",
+                options: [
+                    "Ketik: Tolong carikan tulisan bagus AI untuk anak SMP.",
+                    "Ketik: \"Dampak AI\" Pendidikan SMP filetype:pdf",
+                    "Klik iklan situs web teratas tanpa membaca domainnya.",
+                    "Mencari informasi hanya dari unggahan status teman."
+                ],
+                correct: 1,
+                explanation: "Menggunakan tanda petik (\" \") untuk frasa persis dan operator `filetype:pdf` menyaring hasil pencarian ke dokumen resmi."
+            },
+            {
+                category: "5. Teknik Verifikasi Foto",
+                question: "Siti menerima foto banjir bandang yang diklaim baru terjadi di kotanya hari ini. Langkah cepat untuk memeriksa keaslian foto tersebut adalah...",
+                options: [
+                    "Langsung membagikan foto ke grup WhatsApp warga.",
+                    "Melakukan 'Reverse Image Search' (Pencarian Gambar Terbalik) di Google Images.",
+                    "Mengedit warna foto agar terlihat lebih dramatis.",
+                    "Menanyakan pendapat teman tanpa mengecek sumber."
+                ],
+                correct: 1,
+                explanation: "Pencarian gambar terbalik membantumu mengetahui apakah foto tersebut merupakan foto lama yang diunggah ulang dengan kabar palsu."
+            },
+            {
+                category: "6. Kredibilitas Domain Web",
+                question: "Saat menganalisis situs web, domain mana yang memiliki kredibilitas resmi paling tinggi untuk informasi pemerintah Indonesia?",
+                options: [
+                    ".blogspot.com",
+                    ".wordpress.com",
+                    ".go.id",
+                    ".xyz"
+                ],
+                correct: 2,
+                explanation: "Domain `.go.id` diresmikan khusus untuk instansi pemerintah Indonesia sehingga informasinya memiliki otoritas resmi."
+            },
+            {
+                category: "7. Sikap & Etika Digital",
+                question: "Kamu membaca berita kontroversial yang membuatmu sangat marah. Langkah etis 'Saring sebelum Sharing' yang benar adalah...",
+                options: [
+                    "Langsung mengetik komentar pedas dan membagikannya.",
+                    "Menahan diri, mengendalikan emosi, dan mengecek kebenaran berita di situs periksa fakta.",
+                    "Menghapus semua akun media sosial pribadi.",
+                    "Mengirimkan pesan ancaman ke akun pembuat."
+                ],
+                correct: 1,
+                explanation: "Prinsip utama literasi digital adalah tenang, menahan emosi, lalu memverifikasi fakta sebelum menyebarkannya."
+            },
+            {
+                category: "8. Analisis Penipuan Phishing",
+                question: "Pesan WhatsApp berantai: 'Selamat! Kamu dapat subsidi kuota 100GB. Klik link gratis-kuota.xyz sekarang!'. Pesan ini merupakan...",
+                options: [
+                    "Program resmi pemerintah",
+                    "Upaya penipuan digital (Phishing / Hoax)",
+                    "Iklan layanan masyarakat",
+                    "Pembaruan otomatis dari HP"
+                ],
+                correct: 1,
+                explanation: "Pesan berantai beriming-iming hadiah dengan domain tidak jelas (.xyz) adalah bentuk khas penipuan phishing untuk mencuri data pribadi."
+            },
+            {
+                category: "9. Sumber Periksa Fakta",
+                question: "Jika terdapat dua klaim kesehatan yang saling bertentangan di medsos, rujukan terpercaya yang paling tepat untuk dicek adalah...",
+                options: [
+                    "Situs periksa fakta resmi seperti TurnBackHoax.id atau Kemkes.go.id",
+                    "Jumlah penonton terbanyak di video TikTok",
+                    "Komentar terpopuler netizen di Instagram",
+                    "Tangkapan layar dari grup obrolan tanpa nama"
+                ],
+                correct: 0,
+                explanation: "Situs periksa fakta independen (seperti TurnBackHoax.id) dan lembaga kesehatan resmi memiliki metode verifikasi ilmiah."
+            },
+            {
+                category: "10. AI & Deepfake Verification",
+                question: "Video manipulasi AI (Deepfake) sering meniru wujud tokoh terkenal. Ciri visual anomali yang sering muncul pada video AI adalah...",
+                options: [
+                    "Kualitas gambar sangat jernih dan suara teratur.",
+                    "Gerakan bibir tidak pas dengan suara serta kedipan mata atau ekspresi wajah tampak kaku/tidak alami.",
+                    "Durasi video selalu di atas 5 jam.",
+                    "Video tidak bisa dibuka di smartphone."
+                ],
+                correct: 1,
+                explanation: "Deepfake sering memiliki cela halus seperti gerakan bibir tidak sinkron dengan audio, pencahayaan wajah tidak konsisten, atau kedipan mata tidak alami."
+            }
+        ];
+
+        /* ==================== GAME STATE VARIABLES ==================== */
+        let currentQIndex = 0;
+        let score = 0;
+        let lives = 3;
+        let streak = 0;
+        let maxStreak = 0;
+        let selectedAvatar = '🕵️‍♂️';
+        let playerName = 'Agen Siber';
+        let timer = null;
+        let timeLeft = 30;
+        let userAnswers = [];
+        let soundEnabled = true;
+
+        /* Web Audio API Synthesizer for SFX */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'correct') {
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    osc.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.3);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3
+                    osc.frequency.exponentialRampToValueAtTime(130.81, audioCtx.currentTime + 0.25); // C3
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'combo') {
+                    osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+                    osc.frequency.exponentialRampToValueAtTime(880, audioCtx.currentTime + 0.15); // A5
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                } else if (type === 'click') {
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch (e) {
+                console.log('Audio error:', e);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('sound-icon');
+            if (soundEnabled) {
+                icon.className = 'fas fa-volume-up';
+            } else {
+                icon.className = 'fas fa-volume-mute';
+            }
+        }
+
+        /* Avatar Selection */
+        function selectAvatar(emoji, btn) {
+            playSound('click');
+            selectedAvatar = emoji;
+            document.querySelectorAll('.avatar-option').forEach(b => {
+                b.classList.remove('border-indigo-500');
+                b.classList.add('border-transparent');
+            });
+            btn.classList.remove('border-transparent');
+            btn.classList.add('border-indigo-500');
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('player-name').value.trim();
+            playerName = nameInput || 'Agen Detektif';
+
+            // Reset Game State
+            currentQIndex = 0;
+            score = 0;
+            lives = 3;
+            streak = 0;
+            maxStreak = 0;
+            userAnswers = [];
+
+            // Update HUD
+            document.getElementById('hud-name').innerText = playerName;
+            document.getElementById('hud-avatar').innerText = selectedAvatar;
+            document.getElementById('hud-score').innerText = '0';
+            updateHearts();
+
+            // Switch Screen
+            document.getElementById('screen-start').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+
+            loadQuestion();
+        }
+
+        function updateHearts() {
+            for (let i = 1; i <= 3; i++) {
+                const heartEl = document.getElementById(`heart-${i}`);
+                if (i <= lives) {
+                    heartEl.className = 'heart-active';
+                    heartEl.innerHTML = '<i class="fas fa-heart text-red-500 text-base sm:text-lg"></i>';
+                } else {
+                    heartEl.className = 'text-slate-600';
+                    heartEl.innerHTML = '<i class="fas fa-heart-broken text-base sm:text-lg"></i>';
+                }
+            }
+        }
+
+        function loadQuestion() {
+            if (currentQIndex >= questions.length || lives <= 0) {
+                endGame();
+                return;
+            }
+
+            const q = questions[currentQIndex];
+
+            // Reset UI states
+            document.getElementById('question-category').innerText = q.category;
+            document.getElementById('question-text').innerText = q.question;
+            document.getElementById('question-level-badge').innerText = `Kasus #${currentQIndex + 1} dari ${questions.length}`;
+
+            // Reset Feedback & Next Btn
+            const feedbackPanel = document.getElementById('feedback-panel');
+            feedbackPanel.className = 'hidden p-4 rounded-2xl text-sm border space-y-2';
+            
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = true;
+            nextBtn.className = 'w-full py-3.5 bg-slate-700 text-slate-400 font-bold rounded-xl cursor-not-allowed flex items-center justify-center gap-2';
+
+            // Render Options
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-option w-full text-left p-3.5 sm:p-4 rounded-xl text-xs sm:text-sm text-slate-200 font-semibold flex items-start gap-3';
+                btn.innerHTML = `
+                    <span class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-600 flex items-center justify-center text-indigo-300 text-xs font-bold shrink-0 mt-0.5">
+                        ${String.fromCharCode(65 + idx)}
+                    </span>
+                    <span class="flex-1">${opt}</span>
+                `;
+                btn.onclick = () => handleAnswer(idx);
+                container.appendChild(btn);
+            });
+
+            // Start Countdown Timer
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = 30;
+            const timerBar = document.getElementById('timer-bar');
+            const timerText = document.getElementById('timer-text');
+            
+            timerBar.style.width = '100%';
+            timerText.innerText = `30s`;
+
+            timer = setInterval(() => {
+                timeLeft--;
+                const percent = (timeLeft / 30) * 100;
+                timerBar.style.width = `${percent}%`;
+                timerText.innerText = `${timeLeft}s`;
+
+                if (timeLeft <= 10) {
+                    timerText.className = 'text-red-400 font-mono font-bold animate-pulse';
+                } else {
+                    timerText.className = 'text-amber-400 font-mono font-bold';
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    handleAnswer(-1); // Timeout penalty
+                }
+            }, 1000);
+        }
+
+        function handleAnswer(selectedIndex) {
+            clearInterval(timer);
+            const q = questions[currentQIndex];
+            const buttons = document.querySelectorAll('.btn-option');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const isCorrect = (selectedIndex === q.correct);
+
+            if (isCorrect) {
+                streak++;
+                if (streak > maxStreak) maxStreak = streak;
+
+                // Calculate Score & Multiplier
+                let addedScore = 100;
+                if (streak >= 2) {
+                    addedScore *= 1.5;
+                    playSound('combo');
+                    document.getElementById('combo-badge').innerText = `${streak}x COMBO!`;
+                    document.getElementById('combo-badge').classList.remove('hidden');
+                } else {
+                    playSound('correct');
+                    document.getElementById('combo-badge').classList.add('hidden');
+                }
+
+                score += addedScore;
+                document.getElementById('hud-score').innerText = score;
+
+                if (selectedIndex >= 0) buttons[selectedIndex].classList.add('correct');
+                showFeedback(true, q.explanation);
+
+            } else {
+                streak = 0;
+                lives--;
+                playSound('wrong');
+                document.getElementById('combo-badge').classList.add('hidden');
+                updateHearts();
+
+                if (selectedIndex >= 0) buttons[selectedIndex].classList.add('incorrect');
+                buttons[q.correct].classList.add('correct');
+
+                const reason = selectedIndex === -1 ? "WAKTU HABIS! Detektif harus bertindak cepat." : q.explanation;
+                showFeedback(false, reason);
+            }
+
+            userAnswers.push({
+                question: q.question,
+                selected: selectedIndex,
+                correct: q.correct,
+                isCorrect: isCorrect,
+                explanation: q.explanation
+            });
+
+            // Enable Next Button
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.disabled = false;
+            nextBtn.className = 'w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-game text-base rounded-xl btn-arcade shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 cursor-pointer';
+        }
+
+        function showFeedback(isCorrect, text) {
+            const panel = document.getElementById('feedback-panel');
+            const header = document.getElementById('feedback-header');
+            const body = document.getElementById('feedback-text');
+
+            panel.classList.remove('hidden');
+
+            if (isCorrect) {
+                panel.className = 'p-4 rounded-2xl text-sm bg-emerald-950/60 border border-emerald-500/40 text-emerald-200 space-y-1 animate-fade-in';
+                header.innerHTML = `<i class="fas fa-check-circle text-emerald-400 text-lg"></i> KEPUTUSAN TEPAT! (+Skor)`;
+            } else {
+                panel.className = 'p-4 rounded-2xl text-sm bg-rose-950/60 border border-rose-500/40 text-rose-200 space-y-1 animate-fade-in';
+                header.innerHTML = `<i class="fas fa-times-circle text-rose-400 text-lg"></i> KURANG TEPAT! (-1 Nyawa)`;
+            }
+
+            body.innerText = text;
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            currentQIndex++;
+            loadQuestion();
+        }
+
+        function endGame() {
+            clearInterval(timer);
+
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-result').classList.remove('hidden');
+
+            const totalCorrect = userAnswers.filter(a => a.isCorrect).length;
+            const accuracy = Math.round((totalCorrect / questions.length) * 100);
+
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('final-accuracy').innerText = `${accuracy}%`;
+            document.getElementById('final-combo').innerText = `${maxStreak}x`;
+
+            const iconContainer = document.getElementById('result-icon-container');
+            const resultTitle = document.getElementById('result-title');
+            const resultSubtitle = document.getElementById('result-subtitle');
+
+            if (lives <= 0) {
+                iconContainer.innerHTML = '💥';
+                iconContainer.className = 'w-24 h-24 mx-auto rounded-full bg-rose-500/20 border-2 border-rose-400 flex items-center justify-center text-5xl';
+                resultTitle.innerText = "MISI TERHENTI!";
+                resultSubtitle.innerText = `Agen ${playerName} kehabisan nyawa dalam membasmi hoaks. Jangan menyerah, coba lagi!`;
+            } else if (score >= 900) {
+                iconContainer.innerHTML = '🏆';
+                resultTitle.innerText = "DETEKTIF SIBER UTAMA!";
+                resultSubtitle.innerText = `Luar biasa, Agen ${playerName}! Kamu berhasil melindungi Kota Digital dari kebohongan.`;
+            } else {
+                iconContainer.innerHTML = '⭐';
+                resultTitle.innerText = "MISI SELESAI!";
+                resultSubtitle.innerText = `Kerja bagus, Agen ${playerName}! Tingkatkan terus kemampuan analisis digitalmu.`;
+            }
+
+            // Render Badges
+            const badgesContainer = document.getElementById('badges-container');
+            badgesContainer.innerHTML = '';
+
+            const badgeList = [
+                { name: "Penyaring Hoaks", icon: "🛡️", condition: totalCorrect >= 6 },
+                { name: "Detektif Cermat", icon: "🔍", condition: maxStreak >= 3 },
+                { name: "Pakar Anti-Phishing", icon: "🔒", condition: userAnswers[7]?.isCorrect },
+                { name: "Penganalisis AI", icon: "🤖", condition: userAnswers[9]?.isCorrect }
+            ];
+
+            badgeList.forEach(b => {
+                if (b.condition) {
+                    const badgeEl = document.createElement('span');
+                    badgeEl.className = 'px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs font-bold flex items-center gap-1.5 badge-glow';
+                    badgeEl.innerHTML = `<span>${b.icon}</span> ${b.name}`;
+                    badgesContainer.appendChild(badgeEl);
+                }
+            });
+
+            if (badgesContainer.children.length === 0) {
+                badgesContainer.innerHTML = '<span class="text-slate-400 text-xs italic">Coba ulangi misi untuk mendapatkan lencana!</span>';
+            }
+
+            // Render Review
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.innerHTML = '';
+
+            userAnswers.forEach((ans, i) => {
+                const item = document.createElement('div');
+                item.className = 'p-2.5 rounded-xl bg-slate-900/60 border border-slate-700/60';
+                const status = ans.isCorrect ? '<span class="text-emerald-400 font-bold">✅ Benar</span>' : '<span class="text-rose-400 font-bold">❌ Salah</span>';
+                item.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="font-bold text-slate-300">Kasus #${i+1}</span>
+                        ${status}
+                    </div>
+                    <div class="text-slate-400 text-[11px] mb-1">${ans.question}</div>
+                    <div class="text-indigo-300 text-[11px] font-semibold">💡 ${ans.explanation}</div>
+                `;
+                reviewContainer.appendChild(item);
+            });
+        }
+
+        function resetGame() {
+            playSound('click');
+            document.getElementById('screen-result').classList.add('hidden');
+            document.getElementById('screen-start').classList.remove('hidden');
+        }
+
+        function printResult() {
+            playSound('click');
+            window.print();
+        }
+    </script>
+</body>
+</html>
